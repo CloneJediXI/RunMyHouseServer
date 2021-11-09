@@ -23,8 +23,11 @@ CREATE TABLE reviews(
 
 DROP TABLE IF EXISTS jobs;
 CREATE TABLE jobs(
+    -- title and description of job should be added
     user_id TEXT NOT NULL,
     poster TEXT NOT NULL,
+    job_title TEXT NOT NULL,
+    job_description TEXT NOT NULL,
     ticket_id TEXT NOT NULL PRIMARY KEY,
     ticket_status TEXT NOT NULL, --three statuses? Bidding, In Progress, Done?
     current_cost REAL NOT NULL, --Do we actually need this if we have the companies just enter how low they are willing to go and they can only bid once?

@@ -45,12 +45,14 @@ def add_services():
     poster = input("Enter poster name: ")
     uid = c.execute("SELECT user_id FROM users WHERE username = ?", (poster,))
     uid = c.fetchone()[0]
+    job_title = input("Enter job title:")
+    job_description = input("Enter job description:")
     ticket_id = ID()
     ticket_status = "In progress"
     current_cost = "20 Republic Credits/hr"
     highest_bidder = "Atlas Corp"
     date = ""
-    insert_services(uid, poster, ticket_id, ticket_status, current_cost, highest_bidder, date)
+    insert_services(uid, poster, job_title, job_description, ticket_id, ticket_status, current_cost, highest_bidder, date)
    
 # add payment information
 def add_payment_info():
@@ -132,8 +134,8 @@ def insert_review(uid, reviewer, date, contractor, rating, review):
     c.execute("INSERT INTO reviews VALUES(?,?,?,?,?,?)", (uid, reviewer, date, contractor, rating, review))
 
 # insert function services
-def insert_services(uid, poster, ticket_id, status, cost, h_bidder, date):
-    c.execute("INSERT INTO jobs VALUES(?,?,?,?,?,?,?)", (uid, poster, ticket_id, status, cost, h_bidder, date))
+def insert_services(uid, poster, jb, jd, ticket_id, status, cost, h_bidder, date):
+    c.execute("INSERT INTO jobs VALUES(?,?,?,?,?,?,?,?,?)", (uid, poster, jb, jd, ticket_id, status, cost, h_bidder, date))
 
 # insert into paymentInfo
 def insert_card_info(uid,holder, number, month, year, csv):
@@ -162,6 +164,7 @@ def print_services():
     c.execute("SELECT * FROM jobs")
     services= c.fetchall()
     for service in services:
+        #the print only has halfish the information in the table
         print("User ID:", service[0], "\nTicket Status:", service[1], "Current Price:", service[2], "Leading Bidder:", service[3], "\n===============================")
 
 def print_payment_info():
