@@ -13,12 +13,12 @@
             return $this->pdo;
         }
         //add functions
-        public function addUsers($username, $password, $name, $email_address){
-            $unique_id = creteUserID();
-            $new_username = $username;
-            $new_password = $password;
-            $new_name = $name;
-            $new_email_address = $email_address;
+        public function addUsers($postData){
+            $uniqueID = creteUserID();
+            $newUsername = $postData[0];
+            $newPassword = $password;
+            $newName = $name;
+            $newEmailAddress = $email_address;
 
             try{
                 insert_users($unique_id, $new_username, $new_password, $new_name, $new_email_address);
@@ -29,22 +29,38 @@
 
         public function addReviewers($reviewer_name, $contractor, $stars, $comments){
             $reviewer = $reviewer_name;
-            $current_data = date("Y/m/d");
+            $current_date = date("Y/m/d");
             $query = 'SELECT user_id FROM users WHERE username =: reviewer'
             $stmt = $this->pdo->prepare($query);
             $uid->$stmt->execute();
             $contractor_name = $contractor;
             $star_rating = $stars;
             $comment = $comments;
-            insertReview($uid, $reviewer, $current_data, $contractor_name, $comment);
+            insertReview($uid, $reviewer, $current_date, $contractor_name, $comment);
         }
 
-        public function addJobs(){
+        public function addJobs($poster_name, $job_title, $job_description, $starting_bid){
+            $query = 'SELECT user_id FROM users WHERE username =: reviewer'
+            $stmt = $this->pdo->prepare($query);
+            $uid->$stmt->execute();
+            $poster = $poster_name;
+            $job = $job_title;
+            $description = $job_description;
+            $ticket_id = createID();
+            $ticket_status = "B";
+            $start_bid = $starting_bid;
+            $leading_bidder = "";
+            $date_posted = date("Y/m/d");
+            insertJob($uid, $poster, $job, $job_description, $ticket_id, $ticket_status, $start_bid, $leading_bidder, $date_posted);
 
         }
 
-        public function paymentInformation(){
-
+        public function addPaymentInformation($card_holder< $number_on_card){
+            $query = 'SELECT user_id FROM users WHERE username =: reviewer'
+            $stmt = $this->pdo->prepare($query);
+            $uid->$stmt->execute();
+            $card_owner = $card_holder;
+            $card_number = $number_on_card;
         }
 
         public function addContractors(){
@@ -80,6 +96,23 @@
                 ':stars' = $stars,
                 ':comment' = $comment,
             ]);
+        }
+
+        public function insertJob($uid, $poster, $job, $job_description, $ticket_id, $ticket_status, $start_bid, $leading_bidder, $date_posted){
+            $query = "INSERT INTO jobs($uid, $poster, $job, $job_description, $ticket_id, $ticket_status, $start_bid, $leading_bidder, $date_posted) VALUES(:uid, :poster, :job, :job_description, :ticket_id, :ticket_status, :start_bid, :leading_bidder, $date_posted)";
+            $stmt->$this->pdo->prepare($query);
+            $stmt->execute([
+                ':uid' = $uid,
+                ':poster' = $poster,
+                ':job' = $job,
+                ':job_description' = $job_description,
+                ':ticket_id' = $ticket_id,
+                ':ticket_status' = $ticket_status,
+                ':start_bid' = $start_bid,
+                ':leading_bidder' = $leading_bidder,
+                ':date_posted' = $date_posted,
+            ]);
+
         }
         //remove functions
 
