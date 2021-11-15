@@ -13,107 +13,112 @@
             return $this->pdo;
         }
         //add functions
-        public function addUsers($postData){
-            $uniqueID = creteUserID();
-            $newUsername = $postData[0];
-            $newPassword = $password;
-            $newName = $name;
-            $newEmailAddress = $email_address;
+        public function addUsers($userData){
+            $uid = creteUserID();
 
-            try{
-                insert_users($unique_id, $new_username, $new_password, $new_name, $new_email_address);
-            }catch(exception $e){
-                echo("Username aldready in use.")
-            }
+            //insert script
+            $query = "INSERT INTO users(user_, username, password, full_name, email_address) VALUES(:user_id, :username, :password, :full_name, :email_address)";
+            $stmt -> $this->pdo->prepare($query);
+            $stmt->execute([
+                ':user_id' => $uid,
+                ':username' => $userData[0],
+                ':password' => $userData[1],
+                ':full_name' => $userData[2],
+                ':email_address' => $userData[3],
+            ]);
+            
         }
 
-        public function addReviewers($reviewer_name, $contractor, $stars, $comments){
-            $reviewer = $reviewer_name;
+        public function addReviewers($reviewData){
+            $query = "SELECT user_id FROM users WHERE username =: $reviewData[0]"
+            $stmt = $this->pdo->prepare($query);
+            $uid->$stmt->execute();
             $current_date = date("Y/m/d");
-            $query = 'SELECT user_id FROM users WHERE username =: reviewer'
-            $stmt = $this->pdo->prepare($query);
-            $uid->$stmt->execute();
-            $contractor_name = $contractor;
-            $star_rating = $stars;
-            $comment = $comments;
-            insertReview($uid, $reviewer, $current_date, $contractor_name, $comment);
+            
+            //insert script
+            $query = "INSERT INTO reviews(user_id, reviewer, date, contractor_name, star_rating, comments) VALUES(:user_id, :reviewer, :date, :contractor_name, :star_rating, :comments)";
+            $stmt -> $this->pdo->prepare($query);
+            $stmt->execute([
+                ':user_id' => $uid,
+                ':reviewer' => $reviewData[0],
+                ':date' => $date,
+                ':contractor_name' => $reviewData[1],
+                ':star_rating' => $reviewData[2],
+                ':comments' => $reviewData[3],
+            ]);
         }
 
-        public function addJobs($poster_name, $job_title, $job_description, $starting_bid){
-            $query = 'SELECT user_id FROM users WHERE username =: reviewer'
+        public function addJobs($jobData){
+            $query = "SELECT user_id FROM users WHERE username =: $jobData[0]"
             $stmt = $this->pdo->prepare($query);
             $uid->$stmt->execute();
-            $poster = $poster_name;
-            $job = $job_title;
-            $description = $job_description;
-            $ticket_id = createID();
-            $ticket_status = "B";
-            $start_bid = $starting_bid;
-            $leading_bidder = "";
+            $ticketId = createID();
+            $ticketStatus = "B";
+            $leadingBidder = "";
             $date_posted = date("Y/m/d");
-            insertJob($uid, $poster, $job, $job_description, $ticket_id, $ticket_status, $start_bid, $leading_bidder, $date_posted);
 
-        }
+            //insert script
 
-        public function addPaymentInformation($card_holder< $number_on_card){
-            $query = 'SELECT user_id FROM users WHERE username =: reviewer'
-            $stmt = $this->pdo->prepare($query);
-            $uid->$stmt->execute();
-            $card_owner = $card_holder;
-            $card_number = $number_on_card;
-        }
-
-        public function addContractors(){
-
-        }
-
-        public function addBankInformation(){
-
-        }
-
-        //insert functions
-        public function insertUsers($uid, $username, $password, $name, $email_address){
-            $query = "INSERT INTO users(uid, username, password, name, email) VALUES(:uid, :username, :password, :name, :email)";
-
-            $stmt -> $this->pdo->prepare($query);
-            $stmt->execute([
-                ':uid' = $uid,
-                ':username' = $username,
-                ':password' = $password,
-                ':name' = $name,
-                ':email_address' = $email_address,
-            ]);
-        }
-
-        public function insertReview($uid, $reviewer, $date, $contractor, $stars, $comment){
-            $query = "INSERT INTO reviews(uid, reviewer, date, contractor, stars, comment) VALUES(:uid, :reviewer, :date,:contractor, :stars, :comment)";
-            $stmt -> $this->pdo->prepare($query);
-            $stmt->execute([
-                ':uid' = $uid,
-                ':reviewer' = $reviewer,
-                ':date' = $date,
-                ':contractor' = $contractor,
-                ':stars' = $stars,
-                ':comment' = $comment,
-            ]);
-        }
-
-        public function insertJob($uid, $poster, $job, $job_description, $ticket_id, $ticket_status, $start_bid, $leading_bidder, $date_posted){
-            $query = "INSERT INTO jobs($uid, $poster, $job, $job_description, $ticket_id, $ticket_status, $start_bid, $leading_bidder, $date_posted) VALUES(:uid, :poster, :job, :job_description, :ticket_id, :ticket_status, :start_bid, :leading_bidder, $date_posted)";
+            $query = "INSERT INTO jobs(user_id, poster, job_title, job_description, ticket_id, ticket_status, current_cost, leading_bidder, date) VALUES(:user_id, :poster, :job_title, :job_description, :ticket_id, :ticket_status, :current_cost, :leading_bidder, :date)";
             $stmt->$this->pdo->prepare($query);
             $stmt->execute([
-                ':uid' = $uid,
-                ':poster' = $poster,
-                ':job' = $job,
-                ':job_description' = $job_description,
-                ':ticket_id' = $ticket_id,
-                ':ticket_status' = $ticket_status,
-                ':start_bid' = $start_bid,
-                ':leading_bidder' = $leading_bidder,
-                ':date_posted' = $date_posted,
+                ':user_id' => $uid,
+                ':poster' => $jobData[0],
+                ':job_title' => $jobData[1],
+                ':job_description' => $jobData[2],
+                ':ticket_id' => $ticket_id,
+                ':ticket_status' => $ticket_status,
+                ':current_cost' => $jobData[3],
+                ':leading_bidder' => $leading_bidder,
+                ':date' => $date_posted,
             ]);
-
         }
+
+        public function addPaymentInformation($cardData){
+            $query = "SELECT full_name FROM users WHERE username =: $cardData[0]";
+            $stmt = $this->pdo->prepare($query);
+            $uid->$stmt->execute();
+
+            $query = "INSERT INTO paymentInfo(user_id, card_holder, card_number, month, year, csv) VALUES(:user_id, :card_holder, :card_number, :month, :year, :csv)";
+            $stmt->$this->prepare($query);
+            $stmt->execute([
+                ':user_id' => $uid,
+                ':card_holder' => $cardData[0],
+                ':card_number' => $cardData[1],
+                ':month' => $cardData[2],
+                ':year' => $cardData[3],
+                ':csv' => $cardData[4],
+            ]);        
+        }
+
+        public function addContractors($contractorData){
+            $uid = createID();
+
+            $query = "INSERT INTO contractors(company_name, contractor_id, type_of_service, password, overall_stars) VALUES(:company_name, :contractor_id, :type_of_service, :password, :overall_stars)";
+            $stmt->this->pdo->prepare($query);
+            $stmt->execute([
+                ':company_name' => $contractorData[0],
+                ':contractor_id' => $uid,
+                ':type_of_service' => $contractorData[1],
+                ':password' => $contractorData[2],
+                ':overall_stars' => $contractorData[3],
+            ]);
+        }
+
+        public function addBankInformation($bankData){
+            $query = "SELECT contractor_id FROM contractors where company_name =: $bankData[0]";
+            $stmt = $this->pdo->prepare($query);
+            $uid->$stmt -> execute();
+
+            $query = "INSERT INTO bank_info(contractor_id, routing_number, account_number) VALUES(:contractor_id, :routing_number, :account_number)";
+            $stmt->this->pdo->prepare($query);
+            $stmt->execute([
+                ':contractor_id' => $bankData[1],
+                ':routing_number' => $bankData[2],
+                ':accounting_number' => $bankData[3],
+            ]);
+        }
+
         //remove functions
 
         //helper functions
