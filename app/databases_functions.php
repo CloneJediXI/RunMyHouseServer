@@ -8,11 +8,11 @@
         public function connect(){
             if(this->pdo == null){
                 $this->pdo = new \PDO("sqlite" . Config::PATH_TO_DATABASE);
-
             }
             return $this->pdo;
         }
         //add functions
+        
         public function addUsers($userData){
             $uid = creteUserID();
 
@@ -30,7 +30,7 @@
         }
 
         public function addReviewers($reviewData){
-            $query = "SELECT user_id FROM users WHERE username =: $reviewData[0]"
+            $query = "SELECT user_id FROM users WHERE username = :$reviewData[0]"
             $stmt = $this->pdo->prepare($query);
             $uid->$stmt->execute();
             $current_date = date("Y/m/d");
@@ -49,7 +49,7 @@
         }
 
         public function addJobs($jobData){
-            $query = "SELECT user_id FROM users WHERE username =: $jobData[0]"
+            $query = "SELECT user_id FROM users WHERE username = :$jobData[0]"
             $stmt = $this->pdo->prepare($query);
             $uid->$stmt->execute();
             $ticketId = createID();
@@ -75,7 +75,7 @@
         }
 
         public function addPaymentInformation($cardData){
-            $query = "SELECT full_name FROM users WHERE username =: $cardData[0]";
+            $query = "SELECT full_name FROM users WHERE username = :$cardData[0]";
             $stmt = $this->pdo->prepare($query);
             $uid->$stmt->execute();
 
@@ -106,7 +106,7 @@
         }
 
         public function addBankInformation($bankData){
-            $query = "SELECT contractor_id FROM contractors where company_name =: $bankData[0]";
+            $query = "SELECT contractor_id FROM contractors where company_name = :$bankData[0]";
             $stmt = $this->pdo->prepare($query);
             $uid->$stmt -> execute();
 
@@ -121,8 +121,30 @@
 
         //remove functions
 
-        //helper functions
+        //update functions
 
+        public function updateUserInfo($updateData){
+            $query = "SELECT user_id FROM users where username =: $updateData[0]"; //this username is the old one
+            $stmt->this->pdo->prepare($query);
+            $uid->stmt->execute();
+            //Update
+            $query = "UPDATE users SET username = :newUsername, password = :newPassword, full_name = :newFullName, email_address = :newEmailAddress WHERE user_id = :$uid";
+            $stmt->this->pdo->prepare($query)
+            $stmt->execute([
+                ':newUsername' => $updateData[1],
+                ':newPassword' => $updateData[2],
+                ':newFullName' => $updateData[3],
+                'newEmailAddress' => $updateData[4],
+            ]);
+        }
+
+        //"Print" functions
+            //Sends back information for the client side to print out.
+        
+        
+
+
+        //helper functions
         public function createID(){
             $id=""
             for($x=0; $x<10; $x++){
