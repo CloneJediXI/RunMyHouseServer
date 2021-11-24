@@ -30,7 +30,7 @@
         }
 
         public function addReviewers($reviewData){
-            $query = "SELECT user_id FROM users WHERE username = :$reviewData[0]"
+            $query = "SELECT user_id FROM users WHERE username = :$reviewData[0]";
             $stmt = $this->pdo->prepare($query);
             $uid->$stmt->execute();
             $current_date = date("Y/m/d");
@@ -49,7 +49,7 @@
         }
 
         public function addJobs($jobData){
-            $query = "SELECT user_id FROM users WHERE username = :$jobData[0]"
+            $query = "SELECT user_id FROM users WHERE username = :$jobData[0]";
             $stmt = $this->pdo->prepare($query);
             $uid->$stmt->execute();
             $ticketId = createID();
@@ -129,7 +129,7 @@
             $uid->stmt->execute();
             //Update
             $query = "UPDATE users SET username = :newUsername, password = :newPassword, full_name = :newFullName, email_address = :newEmailAddress WHERE user_id = :$uid";
-            $stmt->this->pdo->prepare($query)
+            $stmt->this->pdo->prepare($query);
             $stmt->execute([
                 ':newUsername' => $updateData[1],
                 ':newPassword' => $updateData[2],
@@ -146,7 +146,7 @@
 
         //helper functions
         public function createID(){
-            $id=""
+            $id="";
             for($x=0; $x<10; $x++){
                 $digit = mt_rand(0,9);
                 $id .= (string)$id;
