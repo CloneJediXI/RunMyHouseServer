@@ -11,6 +11,7 @@
     {
         if(isset($_GET['email']) && isset($_GET['name'])){
             //User wants to make a new login
+            //echo("Add a new User");
             $username = $_GET['username'];
             $password = $_GET['password'];
             $email = $_GET['email'];
@@ -27,8 +28,52 @@
                     $response['err']="true";
                 }
             }
+        }else if(isset($_GET['service']) && isset($_GET['routing']) && isset($_GET['account'])){
+            //This is a contractor trying to create a new account
+            //echo("Add a new Contractor");
+            $username = $_GET['username'];
+            $password = $_GET['password'];
+            $service = $_GET['service'];
+            $routing = $_GET['routing'];
+            $account = $_GET['account'];
+            $connection = new DatabaseConnectionObject();
+            $pdo = $connection->connect();
+            if ($pdo != null){
+                $addUser = $connection->addContractors($username, $password, $service);
+                if($addUser){
+                    $response = [];
+                    $response['err']="false";
+                }else{
+                    $response = [];
+                    $response['err']="true";
+                }
+            }
+        }else if(isset($_GET['contractor'])){
+            // This is a contractor trying to log in
+            //echo("Contractor logging in");
+            $username = $_GET['username'];
+            $password = $_GET['password'];
+            $connection = new DatabaseConnectionObject();
+            $pdo = $connection->connect();
+            if ($pdo != null){
+                $login = $connection->checkContractorLogin($username, $password);
+                if($login){
+                    $response = [];
+                    $response['auth']="true";
+                    $response['id']=$login;
+                }else{
+                    $response = [];
+                    $response['auth']="false";
+                    $response['id']=(-1);
+                }
+            }else{
+                $response = [];
+                $response['auth']="false";
+                $response['id']=(-1);
+            }
         }else{
             //User wants to do a standard login
+            //echo("User logging in");
             $username = $_GET['username'];
             $password = $_GET['password'];
             $connection = new DatabaseConnectionObject();
@@ -38,13 +83,16 @@
                 if($login){
                     $response = [];
                     $response['auth']="true";
+                    $response['id']=$login;
                 }else{
                     $response = [];
                     $response['auth']="false";
+                    $response['id']=(-1);
                 }
             }else{
                 $response = [];
                 $response['auth']="false";
+                $response['id']=(-1);
             }
         }
         

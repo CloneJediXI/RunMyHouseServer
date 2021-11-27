@@ -15,8 +15,6 @@
         //add functions
         
         public function addUsers($username, $password, $name, $email){
-            /*$uid = $this->createUserID();
-            echo("User Id is $uid <br/>");*/
             // Check if the username is unique
             if(!$this->isNewUsername($username)){
                 return false;
@@ -31,7 +29,21 @@
                 ':email_address' => $email,
             ]);
             return true;
-            
+        }
+        public function addContractors($name, $password, $service){
+            // Check if the username is unique
+            if(!$this->isNewContractor($name)){
+                return false;
+            }
+            $query = "INSERT INTO contractors(company_name, type_of_service, password, overall_stars) VALUES(:company_name, :type_of_service, :password, :overall_stars)";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([
+                ':company_name' => $name,
+                ':type_of_service' => $service,
+                ':password' => $password,
+                ':overall_stars' => 0,
+            ]);
+            return true;
         }
 
         public function addReviewers($reviewData){
@@ -96,19 +108,7 @@
             ]);        
         }
 
-        public function addContractors($contractorData){
-            $uid = createID();
-
-            $query = "INSERT INTO contractors(company_name, contractor_id, type_of_service, password, overall_stars) VALUES(:company_name, :contractor_id, :type_of_service, :password, :overall_stars)";
-            $stmt->this->pdo->prepare($query);
-            $stmt->execute([
-                ':company_name' => $contractorData[0],
-                ':contractor_id' => $uid,
-                ':type_of_service' => $contractorData[1],
-                ':password' => $contractorData[2],
-                ':overall_stars' => $contractorData[3],
-            ]);
-        }
+        
 
         public function addBankInformation($bankData){
             $query = "SELECT contractor_id FROM contractors where company_name = :$bankData[0]";
@@ -143,7 +143,7 @@
             ]);
         }
 
-        /* Returns true if the username and password is correct */
+        /* Returns the id of the user if the username and password is correct */
         public function checkLogin($username, $password){
             $query = "SELECT user_id FROM users where username = '$username' AND password = '$password'"; //this username is the old one
             $stmt = $this->pdo->prepare($query);
@@ -151,7 +151,20 @@
 
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
             if(isset($row) && isset($row['user_id'])){
-                return true;
+                return $row['user_id'];
+            }else{
+                return false;
+            }
+        }
+        /* Returns the id of the contractor if the username and password is correct */
+        public function checkContractorLogin($username, $password){
+            $query = "SELECT contractor_id FROM contractors where company_name = '$username' AND password = '$password'"; //this username is the old one
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if(isset($row) && isset($row['contractor_id'])){
+                return $row['contractor_id'];
             }else{
                 return false;
             }
@@ -196,6 +209,17 @@
             $stmt->execute();
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
             if(isset($row) && isset($row['username'])){
+                $is_new_username = false;
+            }
+            return $is_new_username;
+        }
+        public function isNewContractor($str){
+            $is_new_username = true;
+            $query = "SELECT company_name FROM contractors WHERE company_name='$str'";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if(isset($row) && isset($row['company_name'])){
                 $is_new_username = false;
             }
             return $is_new_username;
