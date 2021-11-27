@@ -1,32 +1,52 @@
 <?php
-    namespace App;
+    //namespace Application;
+    include 'config.php';
+    class DatabaseConnectionObject{
 
-    class DatabaseConnection{
 
         private $pdo;
 
         public function connect(){
-            if(this->pdo == null){
-                $this->pdo = new \PDO("sqlite" . Config::PATH_TO_DATABASE);
+            if($this->pdo == null){
+                $this->pdo = new \PDO("sqlite:" . Config::PATH_TO_DATABASE);
             }
             return $this->pdo;
         }
         //add functions
         
-        public function addUsers($userData){
-            $uid = creteUserID();
-
+        public function addUsers($username, $password, $name, $email){
+            /*$uid = $this->createUserID();
+            echo("User Id is $uid <br/>");*/
+            // Check if the username is unique
+            if(!$this->isNewUsername($username)){
+                return false;
+            }
             //insert script
-            $query = "INSERT INTO users(user_, username, password, full_name, email_address) VALUES(:user_id, :username, :password, :full_name, :email_address)";
-            $stmt -> $this->pdo->prepare($query);
+            $query = "INSERT INTO users(username, password, full_name, email_address) VALUES(:username, :password, :full_name, :email_address)";
+            $stmt = $this->pdo->prepare($query);
             $stmt->execute([
-                ':user_id' => $uid,
-                ':username' => $userData[0],
-                ':password' => $userData[1],
-                ':full_name' => $userData[2],
-                ':email_address' => $userData[3],
+                ':username' => $username,
+                ':password' => $password,
+                ':full_name' => $name,
+                ':email_address' => $email,
             ]);
+            return true;
             
+        }
+        public function createUserID(){
+            $i = 1000;
+            while( $i >0){
+                $id = $this->createID();
+                $query = "SELECT user_id FROM users where user_id = '$id'"; //this username is the old one
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute();
+
+                $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+                if(isset($row) && isset($row['user_id'])){
+                    return $id;
+                }
+                $i -= 1;
+            }
         }
 
         public function addReviewers($reviewData){
@@ -138,6 +158,20 @@
             ]);
         }
 
+        /* Returns true if the username and password is correct */
+        public function checkLogin($username, $password){
+            $query = "SELECT user_id FROM users where username = '$username' AND password = '$password'"; //this username is the old one
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if(isset($row) && isset($row['user_id'])){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
         //"Print" functions
             //Sends back information for the client side to print out.
         
@@ -156,10 +190,11 @@
 
         public function isNewUsername($str){
             $is_new_username = true;
-            $query = "SELECT username FROM users";
+            $query = "SELECT username FROM users WHERE username='$str'";
             $stmt = $this->pdo->prepare($query);
-            $result -> $stmt->execute();
-            if(var_dump(array_search($str, $result)) == 1){
+            $stmt->execute();
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if(isset($row) && isset($row['username'])){
                 $is_new_username = false;
             }
             return $is_new_username;
