@@ -33,21 +33,6 @@
             return true;
             
         }
-        public function createUserID(){
-            $i = 1000;
-            while( $i >0){
-                $id = $this->createID();
-                $query = "SELECT user_id FROM users where user_id = '$id'"; //this username is the old one
-                $stmt = $this->pdo->prepare($query);
-                $stmt->execute();
-
-                $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-                if(isset($row) && isset($row['user_id'])){
-                    return $id;
-                }
-                $i -= 1;
-            }
-        }
 
         public function addReviewers($reviewData){
             $query = "SELECT user_id FROM users WHERE username = :$reviewData[0]";
@@ -170,6 +155,22 @@
             }else{
                 return false;
             }
+        }
+        public function getServices(){
+            $query = "SELECT service FROM typesOfService";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+
+            $services = [];
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                array_push($services, $row['service']);
+            }
+            return $services;
+        }
+        public function addService($service){
+            $query = "INSERT INTO typesOfService(service) VALUES('$service')";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
         }
 
         //"Print" functions
