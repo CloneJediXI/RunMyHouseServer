@@ -48,29 +48,6 @@
                     $response['err']="true";
                 }
             }
-        }else if(isset($_GET['contractor'])){
-            // This is a contractor trying to log in
-            //echo("Contractor logging in");
-            $username = $_GET['username'];
-            $password = $_GET['password'];
-            $connection = new DatabaseConnectionObject();
-            $pdo = $connection->connect();
-            if ($pdo != null){
-                $login = $connection->checkContractorLogin($username, $password);
-                if($login){
-                    $response = [];
-                    $response['auth']="true";
-                    $response['id']=$login;
-                }else{
-                    $response = [];
-                    $response['auth']="false";
-                    $response['id']=(-1);
-                }
-            }else{
-                $response = [];
-                $response['auth']="false";
-                $response['id']=(-1);
-            }
         }else{
             //User wants to do a standard login
             //echo("User logging in");
@@ -80,14 +57,25 @@
             $pdo = $connection->connect();
             if ($pdo != null){
                 $login = $connection->checkLogin($username, $password);
+                // The log in is not in the user table
                 if($login){
                     $response = [];
                     $response['auth']="true";
                     $response['id']=$login;
+                    $response['contractor']=false;
                 }else{
-                    $response = [];
-                    $response['auth']="false";
-                    $response['id']=(-1);
+                    // Check the contractor table
+                    $login = $connection->checkContractorLogin($username, $password);
+                    if($login){
+                        $response = [];
+                        $response['auth']="true";
+                        $response['id']=$login;
+                        $response['contractor']=true;
+                    }else{
+                        $response = [];
+                        $response['auth']="false";
+                        $response['id']=(-1);
+                    }
                 }
             }else{
                 $response = [];

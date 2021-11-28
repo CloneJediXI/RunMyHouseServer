@@ -32,7 +32,7 @@
         }
         public function addContractors($name, $password, $service){
             // Check if the username is unique
-            if(!$this->isNewContractor($name)){
+            if(!$this->isNewUsername($name)){
                 return false;
             }
             $query = "INSERT INTO contractors(company_name, type_of_service, password, overall_stars) VALUES(:company_name, :type_of_service, :password, :overall_stars)";
@@ -151,7 +151,6 @@
             $query = "SELECT user_id FROM users where username = '$username' AND password = '$password'"; //this username is the old one
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
-
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
             if(isset($row) && isset($row['user_id'])){
                 return $row['user_id'];
@@ -211,6 +210,28 @@
             }
             return $jobs;
         }
+        public function getContractorJobs($userId, $viewAll){
+            $where = "";
+            if($viewAll!='true'){
+                $where = "AND ticket_status='Open'";
+            }
+            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE contractor_id=$userId $where";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            $jobs = [];
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $jobs[] = [
+                    'poster' => $row['poster'],
+                    'job_title' => $row['job_title'],
+                    'job_description' => $row['job_description'],
+                    'ticket_id' => $row['ticket_id'],
+                    'ticket_status' => $row['ticket_status'],
+                    'current_cost' => $row['current_cost'],
+                    'company_name' => $row['company_name'],
+                ];
+            }
+            return $jobs;
+        }
 
         //"Print" functions
             //Sends back information for the client side to print out.
@@ -229,26 +250,22 @@
         }
 
         public function isNewUsername($str){
-            $is_new_username = true;
+            
             $query = "SELECT username FROM users WHERE username='$str'";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
             if(isset($row) && isset($row['username'])){
-                $is_new_username = false;
+                return false;
             }
-            return $is_new_username;
-        }
-        public function isNewContractor($str){
-            $is_new_username = true;
             $query = "SELECT company_name FROM contractors WHERE company_name='$str'";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
             if(isset($row) && isset($row['company_name'])){
-                $is_new_username = false;
+                return false;
             }
-            return $is_new_username;
+            return true;
         }
     }
 ?>
