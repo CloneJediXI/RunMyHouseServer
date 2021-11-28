@@ -189,8 +189,12 @@
             $stmt->execute();
         }
 
-        public function getCustomerJobs($userId){
-            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE user_id=$userId";
+        public function getCustomerJobs($userId, $viewAll){
+            $where = "";
+            if($viewAll!='true'){
+                $where = "AND ticket_status='Open'";
+            }
+            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE user_id=$userId $where";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             $jobs = [];

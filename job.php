@@ -7,12 +7,13 @@
 
     //use Application\DatabaseConnectionObject as DBConnect;
     include 'app/DatabaseConnection.php';
-    if (isset($_GET['userId'])){
+    if (isset($_GET['userId']) && isset($_GET['viewAll'])){
         $userId = $_GET['userId'];
+        $viewAll = $_GET['viewAll'];
         $connection = new DatabaseConnectionObject();
         $pdo = $connection->connect();
         if ($pdo != null){
-            $jobs = $connection->getCustomerJobs($userId);
+            $jobs = $connection->getCustomerJobs($userId, $viewAll);
             if($jobs){
                 $response = [];
                 $response['data']=$jobs;
