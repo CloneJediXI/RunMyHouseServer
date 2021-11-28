@@ -46,6 +46,9 @@
             return true;
         }
 
+
+
+
         public function addReviewers($reviewData){
             $query = "SELECT user_id FROM users WHERE username = :$reviewData[0]";
             $stmt = $this->pdo->prepare($query);
@@ -184,6 +187,25 @@
             $query = "INSERT INTO typesOfService(service) VALUES('$service')";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
+        }
+
+        public function getCustomerJobs($userId){
+            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE user_id=$userId";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            $jobs = [];
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $jobs[] = [
+                    'poster' => $row['poster'],
+                    'job_title' => $row['job_title'],
+                    'job_description' => $row['job_description'],
+                    'ticket_id' => $row['ticket_id'],
+                    'ticket_status' => $row['ticket_status'],
+                    'current_cost' => $row['current_cost'],
+                    'company_name' => $row['company_name'],
+                ];
+            }
+            return $jobs;
         }
 
         //"Print" functions
