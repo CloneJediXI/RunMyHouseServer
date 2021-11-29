@@ -134,7 +134,7 @@
                 ':newUsername' => $updateData[1],
                 ':newPassword' => $updateData[2],
                 ':newFullName' => $updateData[3],
-                'newEmailAddress' => $updateData[4],
+                ':newEmailAddress' => $updateData[4],
             ]);
         }
 
