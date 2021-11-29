@@ -81,21 +81,7 @@
                 $response['id']=(-1);
             }
         }
-        
-        //$query = "SELECT * FROM `staff_reg` WHERE username='$username' and password='$password'";
-
-        //$result = mysql_query($query) or die(mysql_error());
-        //$count = mysql_num_rows($result);
-        /*if ($count == 1)
-        {
-            $response="Success";
-        }
-        else
-        {
-            $response="Failure";
-        }*/
-        
-    //now echo it as an json object
+        //now echo it as an json object
         echo json_encode($response);
     }
 ?>

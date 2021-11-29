@@ -39,8 +39,24 @@
             }
         }
         echo json_encode($response);
-    }else if(isset($_GET['add'])){
-
+    }else if(isset($_GET['jobTitle']) && isset($_GET['jobDesc']) && isset($_GET['cost']) && isset($_GET['userId'])){
+        $jobTitle = $_GET['jobTitle'];
+        $jobDesc = $_GET['jobDesc'];
+        $cost = $_GET['cost'];
+        $userId = $_GET['userId'];
+        $connection = new DatabaseConnectionObject();
+        $pdo = $connection->connect();
+        if ($pdo != null){
+            $newJob = $connection->addJob($jobTitle, $jobDesc, $cost, $userId);
+            if($newJob){
+                $response = [];
+                $response['data']=$newJob;
+            }else{
+                $response = [];
+                $response['data']=[];
+            }
+        }
+        echo json_encode($response);
     }
     
 ?>

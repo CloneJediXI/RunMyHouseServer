@@ -45,6 +45,31 @@
             ]);
             return true;
         }
+        public function addJob($jobTitle, $jobDesc, $cost, $userId){
+            // Get the current time
+            date_default_timezone_set("America/New_York"); 
+            $date =  date("Y/m/d");
+            // Get the username based on the user ID
+            $query = "SELECT username FROM users WHERE user_id = $userId";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $username = $row['username'];
+
+            $query = "INSERT INTO jobs(user_id, poster, job_title, job_description, ticket_status, current_cost, leading_bidder, date) VALUES(:user_id, :poster, :job_title, :job_description, :ticket_status, :current_cost, :leading_bidder, :date)";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([
+                ':user_id' => $userId,
+                ':poster' => $username,
+                ':job_title' => $jobTitle,
+                ':job_description' => $jobDesc,
+                ':ticket_status' => 'Bidding',
+                ':current_cost' => $cost,
+                ':leading_bidder' => 0,
+                ':date' => $date,
+            ]);
+            return true;
+        }
 
 
 
@@ -65,32 +90,6 @@
                 ':contractor_name' => $reviewData[1],
                 ':star_rating' => $reviewData[2],
                 ':comments' => $reviewData[3],
-            ]);
-        }
-
-        public function addJobs($jobData){
-            $query = "SELECT user_id FROM users WHERE username = :$jobData[0]";
-            $stmt = $this->pdo->prepare($query);
-            $uid->$stmt->execute();
-            $ticketId = createID();
-            $ticketStatus = "B";
-            $leadingBidder = "";
-            $date_posted = date("Y/m/d");
-
-            //insert script
-
-            $query = "INSERT INTO jobs(user_id, poster, job_title, job_description, ticket_id, ticket_status, current_cost, leading_bidder, date) VALUES(:user_id, :poster, :job_title, :job_description, :ticket_id, :ticket_status, :current_cost, :leading_bidder, :date)";
-            $stmt->$this->pdo->prepare($query);
-            $stmt->execute([
-                ':user_id' => $uid,
-                ':poster' => $jobData[0],
-                ':job_title' => $jobData[1],
-                ':job_description' => $jobData[2],
-                ':ticket_id' => $ticket_id,
-                ':ticket_status' => $ticket_status,
-                ':current_cost' => $jobData[3],
-                ':leading_bidder' => $leading_bidder,
-                ':date' => $date_posted,
             ]);
         }
 
@@ -250,7 +249,6 @@
         }
 
         public function isNewUsername($str){
-            
             $query = "SELECT username FROM users WHERE username='$str'";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
