@@ -1,7 +1,7 @@
 <?php
-    namespace App;
+    //namespace Application;
 
-    class config(){
+    class Config{
         const PATH_TO_DATABASE = 'var/database.db';
     }
 ?>
