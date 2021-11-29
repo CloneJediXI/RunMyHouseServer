@@ -28,14 +28,12 @@
                     $response['err']="true";
                 }
             }
-        }else if(isset($_GET['service']) && isset($_GET['routing']) && isset($_GET['account'])){
+        }else if(isset($_GET['service'])){
             //This is a contractor trying to create a new account
             //echo("Add a new Contractor");
             $username = $_GET['username'];
             $password = $_GET['password'];
             $service = $_GET['service'];
-            $routing = $_GET['routing'];
-            $account = $_GET['account'];
             $connection = new DatabaseConnectionObject();
             $pdo = $connection->connect();
             if ($pdo != null){
