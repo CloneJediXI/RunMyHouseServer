@@ -70,9 +70,17 @@
             ]);
             return true;
         }
+        public function addBid($ticketId, $bid, $contractorId){
 
-
-
+            $query = "UPDATE jobs SET current_cost = :current_cost, leading_bidder = :leading_bidder WHERE ticket_id = :ticket_id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([
+                ':current_cost' => $bid,
+                ':leading_bidder' => $contractorId,
+                ':ticket_id' => $ticketId,
+            ]);
+            return true;
+        }
 
         public function addReviewers($reviewData){
             $query = "SELECT user_id FROM users WHERE username = :$reviewData[0]";
@@ -215,6 +223,24 @@
                 $where = "AND ticket_status='Open'";
             }
             $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE contractor_id=$userId $where";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            $jobs = [];
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $jobs[] = [
+                    'poster' => $row['poster'],
+                    'job_title' => $row['job_title'],
+                    'job_description' => $row['job_description'],
+                    'ticket_id' => $row['ticket_id'],
+                    'ticket_status' => $row['ticket_status'],
+                    'current_cost' => $row['current_cost'],
+                    'company_name' => $row['company_name'],
+                ];
+            }
+            return $jobs;
+        }
+        public function getJobs($status){
+            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE ticket_status='$status'";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             $jobs = [];

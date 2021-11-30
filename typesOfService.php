@@ -8,6 +8,7 @@
     //use Application\DatabaseConnectionObject as DBConnect;
     include 'app/DatabaseConnection.php';
     if(isset($_GET['add'])){
+        // Add a new type of service
         $service = $_GET['add'];
         $connection = new DatabaseConnectionObject();
         $pdo = $connection->connect();
@@ -15,6 +16,7 @@
         $response = [];
         $response['message']="Added new service '$service'";
     }else{
+        // Get all the existing types of services
         $connection = new DatabaseConnectionObject();
         $pdo = $connection->connect();
         $response = [];
