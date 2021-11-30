@@ -76,6 +76,39 @@
             }
         }
         echo json_encode($response);
+    }else if(isset($_GET['status']) && isset($_GET['userId'])){
+        // Get all jobs with a specified status for a specified user
+        $status = $_GET['status'];
+        $userId = $_GET['userId'];
+        $connection = new DatabaseConnectionObject();
+        $pdo = $connection->connect();
+        if ($pdo != null){
+            $jobs = $connection->getCustomerJobsForBids($userId, $status);
+            if($jobs){
+                $response = [];
+                $response['data']=$jobs;
+            }else{
+                $response = [];
+                $response['data']=[];
+            }
+        }
+        echo json_encode($response);
+    }else if(isset($_GET['ticketId']) && isset($_GET['biddingComplete'])){
+        // Close bidding for a job
+        $ticketId = $_GET['ticketId'];
+        $connection = new DatabaseConnectionObject();
+        $pdo = $connection->connect();
+        if ($pdo != null){
+            $jobs = $connection->closeJobBidding($ticketId);
+            if($jobs){
+                $response = [];
+                $response['data']=$jobs;
+            }else{
+                $response = [];
+                $response['data']=[];
+            }
+        }
+        echo json_encode($response);
     }
     else if(isset($_GET['ticketId']) && isset($_GET['bid']) && isset($_GET['contractorId'])){
         // Update the current bid on a job
