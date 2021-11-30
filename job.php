@@ -60,13 +60,14 @@
             }
         }
         echo json_encode($response);
-    }else if(isset($_GET['status'])){
-        // Get all jobs with a specified status
+    }else if(isset($_GET['status']) && isset($_GET['userId'])){
+        // Get all jobs with a specified status for a specified user
         $status = $_GET['status'];
+        $userId = $_GET['userId'];
         $connection = new DatabaseConnectionObject();
         $pdo = $connection->connect();
         if ($pdo != null){
-            $jobs = $connection->getJobs($status);
+            $jobs = $connection->getCustomerJobsForBids($userId, $status);
             if($jobs){
                 $response = [];
                 $response['data']=$jobs;
@@ -76,14 +77,13 @@
             }
         }
         echo json_encode($response);
-    }else if(isset($_GET['status']) && isset($_GET['userId'])){
-        // Get all jobs with a specified status for a specified user
+    }else if(isset($_GET['status'])){
+        // Get all jobs with a specified status
         $status = $_GET['status'];
-        $userId = $_GET['userId'];
         $connection = new DatabaseConnectionObject();
         $pdo = $connection->connect();
         if ($pdo != null){
-            $jobs = $connection->getCustomerJobsForBids($userId, $status);
+            $jobs = $connection->getJobs($status);
             if($jobs){
                 $response = [];
                 $response['data']=$jobs;
