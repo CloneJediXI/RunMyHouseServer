@@ -128,6 +128,33 @@
             }
         }
         echo json_encode($response);
+    }else if ( isset($_GET['ticketId']) && isset($_GET['completeFlag']) ){
+        //echo("Here");
+        /*
+        * Make an endpoint in the job.php file
+        * that will take a ticket ID and a complete flag, that will mark jobs as complete
+        */
+        $ticket_id = $_GET['ticketId'];
+        $completeFlag = $_GET['completeFlag'];
+
+
+        //call a function to update the job's ticket status to closed
+        
+        $connection = new DatabaseConnectionObject();
+        $pdo = $connection->connect();
+        if ($pdo != null){
+            $completeJob = $connection->completeJob($ticket_id);
+            if($completeJob){
+                $response = [];
+                $response['err'] = "true";
+            }else{
+                $response = [];
+                $response['err'] = [];
+            }
+        }
+
+        echo json_encode($response);
+
     }
     
 ?>

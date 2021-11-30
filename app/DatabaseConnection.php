@@ -82,23 +82,51 @@
             return true;
         }
 
-        public function addReviewers($reviewData){
-            $query = "SELECT user_id FROM users WHERE username = :$reviewData[0]";
+        public function addReview($userId, $ticketId, $reviewText, $reviewRating){
+            // Get the username
+            $query = "SELECT username FROM users WHERE user_id = $userId";
             $stmt = $this->pdo->prepare($query);
-            $uid->$stmt->execute();
-            $current_date = date("Y/m/d");
-            
+            $stmt->execute();
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $username = $row['username'];
+
+            // Get the current time
+            date_default_timezone_set("America/New_York"); 
+            $date =  date("Y/m/d");
+
+            // Get contractor name from ticket ID
+            $query = "SELECT company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE ticket_id = $ticketId";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $company = $row['company_name'];
+
             //insert script
             $query = "INSERT INTO reviews(user_id, reviewer, date, contractor_name, star_rating, comments) VALUES(:user_id, :reviewer, :date, :contractor_name, :star_rating, :comments)";
-            $stmt -> $this->pdo->prepare($query);
+            $stmt = $this->pdo->prepare($query);
             $stmt->execute([
-                ':user_id' => $uid,
-                ':reviewer' => $reviewData[0],
+                ':user_id' => $userId,
+                ':reviewer' => $username,
                 ':date' => $date,
-                ':contractor_name' => $reviewData[1],
-                ':star_rating' => $reviewData[2],
-                ':comments' => $reviewData[3],
+                ':contractor_name' => $company,
+                ':star_rating' => $reviewRating,
+                ':comments' => $reviewText,
             ]);
+
+            // Calculate the company's star rating
+            $query = "SELECT COUNT(star_rating) as amount, SUM(star_rating) as total FROM reviews WHERE contractor_name='$company'";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $newRating = ((float)$row['total']) / ((float)$row['amount']);
+            $newRating = round($newRating, 1);
+            // Update the company's star rating
+            $query = "UPDATE contractors SET overall_stars = $newRating WHERE company_name = '$company'";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+
+            return true;
         }
 
         public function addPaymentInformation($cardData){
@@ -200,7 +228,7 @@
             if($viewAll!='true'){
                 $where = "AND ticket_status='Open'";
             }
-            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE user_id=$userId $where";
+            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name, overall_stars FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE user_id=$userId $where";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             $jobs = [];
@@ -213,12 +241,13 @@
                     'ticket_status' => $row['ticket_status'],
                     'current_cost' => $row['current_cost'],
                     'company_name' => $row['company_name'],
+                    'overall_stars' => $row['overall_stars']
                 ];
             }
             return $jobs;
         }
         public function getCustomerJobsForBids($userId, $status){
-            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE user_id=$userId AND ticket_status='$status'";
+            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name, overall_stars FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE user_id=$userId AND ticket_status='$status'";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             $jobs = [];
@@ -231,6 +260,7 @@
                     'ticket_status' => $row['ticket_status'],
                     'current_cost' => $row['current_cost'],
                     'company_name' => $row['company_name'],
+                    'overall_stars' => $row['overall_stars']
                 ];
             }
             return $jobs;
@@ -240,7 +270,7 @@
             if($viewAll!='true'){
                 $where = "AND ticket_status='Open'";
             }
-            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE contractor_id=$userId $where";
+            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name, overall_stars FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE contractor_id=$userId $where";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             $jobs = [];
@@ -253,12 +283,13 @@
                     'ticket_status' => $row['ticket_status'],
                     'current_cost' => $row['current_cost'],
                     'company_name' => $row['company_name'],
+                    'overall_stars' => $row['overall_stars']
                 ];
             }
             return $jobs;
         }
         public function getJobs($status){
-            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE ticket_status='$status'";
+            $query = "SELECT poster, job_title, job_description, ticket_id, ticket_status, current_cost, company_name, overall_stars FROM (jobs JOIN contractors ON jobs.leading_bidder = contractors.contractor_id) WHERE ticket_status='$status'";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             $jobs = [];
@@ -271,6 +302,7 @@
                     'ticket_status' => $row['ticket_status'],
                     'current_cost' => $row['current_cost'],
                     'company_name' => $row['company_name'],
+                    'overall_stars' => $row['overall_stars']
                 ];
             }
             return $jobs;
@@ -280,6 +312,15 @@
             $stmt = $this->pdo->prepare($query);
             $stmt->execute([
                 ':ticket_status' => "Open",
+                ':ticket_id' => $ticketId,
+            ]);
+            return true;
+        }
+        public function completeJob($ticketId){
+            $query = "UPDATE jobs SET ticket_status = :ticket_status WHERE ticket_id = :ticket_id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([
+                ':ticket_status' => "Closed",
                 ':ticket_id' => $ticketId,
             ]);
             return true;
