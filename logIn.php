@@ -5,7 +5,7 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 
-    //use Application\DatabaseConnectionObject as DBConnect;
+    // This file contains all the methods relating to login and account creation
     include 'app/DatabaseConnection.php';
     if (isset($_GET['username']) && isset($_GET['password']))
     {

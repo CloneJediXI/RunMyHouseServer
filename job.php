@@ -5,7 +5,7 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 
-    //use Application\DatabaseConnectionObject as DBConnect;
+    // This file contains all the methods relating to viewing and posting jobs
     include 'app/DatabaseConnection.php';
     if (isset($_GET['userId']) && isset($_GET['viewAll'])){
         // Get Jobs for a specific user

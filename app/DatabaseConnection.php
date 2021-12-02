@@ -3,7 +3,6 @@
     include 'config.php';
     class DatabaseConnectionObject{
 
-
         private $pdo;
 
         public function connect(){
@@ -12,8 +11,8 @@
             }
             return $this->pdo;
         }
-        //add functions
-        
+
+        //********* Add functions **************
         public function addUsers($username, $password, $name, $email){
             // Check if the username is unique
             if(!$this->isNewUsername($username)){
@@ -128,43 +127,13 @@
 
             return true;
         }
-
-        public function addPaymentInformation($cardData){
-            $query = "SELECT full_name FROM users WHERE username = :$cardData[0]";
+        public function addService($service){
+            $query = "INSERT INTO typesOfService(service) VALUES('$service')";
             $stmt = $this->pdo->prepare($query);
-            $uid->$stmt->execute();
-
-            $query = "INSERT INTO paymentInfo(user_id, card_holder, card_number, month, year, csv) VALUES(:user_id, :card_holder, :card_number, :month, :year, :csv)";
-            $stmt->$this->prepare($query);
-            $stmt->execute([
-                ':user_id' => $uid,
-                ':card_holder' => $cardData[0],
-                ':card_number' => $cardData[1],
-                ':month' => $cardData[2],
-                ':year' => $cardData[3],
-                ':csv' => $cardData[4],
-            ]);        
+            $stmt->execute();
         }
 
-        
-
-        public function addBankInformation($bankData){
-            $query = "SELECT contractor_id FROM contractors where company_name = :$bankData[0]";
-            $stmt = $this->pdo->prepare($query);
-            $uid->$stmt -> execute();
-
-            $query = "INSERT INTO bank_info(contractor_id, routing_number, account_number) VALUES(:contractor_id, :routing_number, :account_number)";
-            $stmt->this->pdo->prepare($query);
-            $stmt->execute([
-                ':contractor_id' => $bankData[1],
-                ':routing_number' => $bankData[2],
-                ':accounting_number' => $bankData[3],
-            ]);
-        }
-
-        //remove functions
-
-        //update functions
+        // ********** Update functions **********
 
         public function updateUserInfo($updateData){
             $query = "SELECT user_id FROM users where username =: $updateData[0]"; //this username is the old one
@@ -180,7 +149,26 @@
                 'newEmailAddress' => $updateData[4],
             ]);
         }
+        public function closeJobBidding($ticketId){
+            $query = "UPDATE jobs SET ticket_status = :ticket_status WHERE ticket_id = :ticket_id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([
+                ':ticket_status' => "Open",
+                ':ticket_id' => $ticketId,
+            ]);
+            return true;
+        }
+        public function completeJob($ticketId){
+            $query = "UPDATE jobs SET ticket_status = :ticket_status WHERE ticket_id = :ticket_id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([
+                ':ticket_status' => "Closed",
+                ':ticket_id' => $ticketId,
+            ]);
+            return true;
+        }
 
+        // ********** Return data functions ****************
         /* Returns the id of the user if the username and password is correct */
         public function checkLogin($username, $password){
             $query = "SELECT user_id FROM users where username = '$username' AND password = '$password'"; //this username is the old one
@@ -217,12 +205,6 @@
             }
             return $services;
         }
-        public function addService($service){
-            $query = "INSERT INTO typesOfService(service) VALUES('$service')";
-            $stmt = $this->pdo->prepare($query);
-            $stmt->execute();
-        }
-
         public function getCustomerJobs($userId, $viewAll){
             $where = "";
             if($viewAll!='true'){
@@ -307,41 +289,8 @@
             }
             return $jobs;
         }
-        public function closeJobBidding($ticketId){
-            $query = "UPDATE jobs SET ticket_status = :ticket_status WHERE ticket_id = :ticket_id";
-            $stmt = $this->pdo->prepare($query);
-            $stmt->execute([
-                ':ticket_status' => "Open",
-                ':ticket_id' => $ticketId,
-            ]);
-            return true;
-        }
-        public function completeJob($ticketId){
-            $query = "UPDATE jobs SET ticket_status = :ticket_status WHERE ticket_id = :ticket_id";
-            $stmt = $this->pdo->prepare($query);
-            $stmt->execute([
-                ':ticket_status' => "Closed",
-                ':ticket_id' => $ticketId,
-            ]);
-            return true;
-        }
-
-        //"Print" functions
-            //Sends back information for the client side to print out.
         
-        
-
-
         //helper functions
-        public function createID(){
-            $id="";
-            for($x=0; $x<10; $x++){
-                $digit = mt_rand(0,9);
-                $id .= (string)$id;
-            }
-            return $id;
-        }
-
         public function isNewUsername($str){
             $query = "SELECT username FROM users WHERE username='$str'";
             $stmt = $this->pdo->prepare($query);
